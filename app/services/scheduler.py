@@ -72,7 +72,8 @@ async def _send_daily_reports(bot) -> None:
                     top = summary.by_category[:3]
                     text += "\n<b>Top toifalar:</b>\n"
                     for cat in top:
-                        text += f"  • {cat.category_name or 'Noma\'lum'}: {cat.total:,.0f} so'm\n"
+                        name = cat.category_name or "Noma'lum"
+                        text += f"  • {name}: {float(cat.total):,.0f} so'm\n"
 
                 await bot.send_message(
                     chat_id=int(user.telegram_user_id),
@@ -195,10 +196,10 @@ async def _send_monthly_reports(bot) -> None:
                     text += "\n<b>📂 Toifalar bo'yicha:</b>\n"
                     for cat in summary.by_category[:8]:
                         name = cat.category_name or "Noma'lum"
-                        pct = (cat.total / max(
+                        pct = (float(cat.total) / max(
                             float(summary.total_income) + float(summary.total_expense), 1
                         ) * 100)
-                        text += f"  • {name}: {cat.total:,.0f} so'm ({pct:.0f}%)\n"
+                        text += f"  • {name}: {float(cat.total):,.0f} so'm ({pct:.0f}%)\n"
 
                 text += f"\n/report — batafsil ma'lumot"
 

@@ -30,6 +30,9 @@ services:
       - key: OPENAI_MODEL
         value: llama-3.3-70b-versatile
 
+      - key: WHISPER_BACKEND
+        value: openai
+
       - key: WHISPER_MODEL
         value: whisper-large-v3
 
