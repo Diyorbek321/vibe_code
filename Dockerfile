@@ -50,7 +50,13 @@ COPY --chown=app:app . .
 # Built frontend → served as static files by FastAPI
 COPY --from=frontend-builder /frontend/dist /app/static
 
-RUN mkdir -p logs && chown app:app logs
+RUN mkdir -p logs /tmp/hf_cache && chown -R app:app logs /tmp/hf_cache
+
+# HuggingFace cache must point to a writable dir (app user has no $HOME)
+ENV HF_HOME=/tmp/hf_cache \
+    HUGGINGFACE_HUB_CACHE=/tmp/hf_cache \
+    TRANSFORMERS_CACHE=/tmp/hf_cache \
+    XDG_CACHE_HOME=/tmp/hf_cache
 
 USER app
 
