@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: financebot
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"          # remove in production (internal only)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d financebot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DB_URL: postgresql+asyncpg://postgres:postgres@db:5432/financebot
+      DB_URL_SYNC: postgresql://postgres:postgres@db:5432/financebot
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs        # persist logs outside container
+      - whisper_cache:/root/.cache/huggingface   # cache downloaded Whisper model
+    command: >
+      sh -c "
+        echo 'Running Alembic migrations...' &&
+        alembic upgrade head &&
+        echo 'Starting application...' &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 --loop asyncio
+      "
+
+volumes:
+  postgres_data:
+  whisper_cache:

@@ -1,0 +1,65 @@
+databases:
+  - name: financebot-db
+    databaseName: financebot
+    user: financebot
+    plan: free
+
+services:
+  - type: web
+    name: financebot
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      # ── Set these manually in Render dashboard after first deploy ──
+      - key: SECRET_KEY
+        generateValue: true          # Render auto-generates a secure random value
+
+      - key: BOT_TOKEN
+        sync: false                  # enter manually in dashboard
+
+      - key: OPENAI_API_KEY
+        sync: false                  # your Groq API key
+
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+
+      - key: OPENAI_MODEL
+        value: llama-3.3-70b-versatile
+
+      - key: WHISPER_MODEL
+        value: whisper-large-v3
+
+      # ── Database (auto-filled from linked DB above) ────────────────
+      - key: DB_URL
+        fromDatabase:
+          name: financebot-db
+          property: connectionString
+          # Render gives postgresql://... we need postgresql+asyncpg://...
+          # See step 4 in deployment guide — set this manually with +asyncpg
+
+      - key: DB_URL_SYNC
+        fromDatabase:
+          name: financebot-db
+          property: connectionString
+
+      # ── App config ────────────────────────────────────────────────
+      - key: APP_ENV
+        value: production
+
+      - key: WEBHOOK_URL
+        sync: false                  # set to your Render URL after first deploy
+                                     # e.g. https://financebot.onrender.com
+
+      - key: FRONTEND_URLS
+        sync: false                  # same as WEBHOOK_URL (same origin)
+                                     # e.g. https://financebot.onrender.com
+
+      - key: TZ
+        value: Asia/Tashkent
+
+      - key: LOG_LEVEL
+        value: INFO
