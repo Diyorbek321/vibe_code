@@ -45,6 +45,11 @@ async def telegram_webhook(request: Request) -> JSONResponse:
     body = await request.json()
     update = Update.model_validate(body)
 
-    # Feed update to dispatcher (non-blocking — aiogram handles it internally)
-    await dispatcher.feed_update(bot, update)
+    # Feed update to dispatcher. We swallow exceptions here and always return 200
+    # so Telegram does not retry failing updates (e.g. user blocked the bot,
+    # chat deleted → "chat not found"). Errors are already logged by aiogram.
+    try:
+        await dispatcher.feed_update(bot, update)
+    except Exception as exc:
+        logger.warning("Update handler failed (update_id=%s): %s", update.update_id, exc)
     return JSONResponse(content={"ok": True})
