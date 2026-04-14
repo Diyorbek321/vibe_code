@@ -285,7 +285,7 @@ async def handle_monthly_report(message: Message, app: FastAPI) -> str:
         lines.append("<b>📂 Toifalar bo'yicha:</b>")
         for cat in income_cats[:8]:
             name = cat.category_name or "Noma'lum"
-            pct = (cat.total / (float(summary.total_income) + float(summary.total_expense)) * 100) if (
+            pct = (float(cat.total) / (float(summary.total_income) + float(summary.total_expense)) * 100) if (
                 float(summary.total_income) + float(summary.total_expense)
             ) > 0 else 0
             lines.append(f"  • {name}: {cat.total:,.0f} so'm ({pct:.0f}%)")
