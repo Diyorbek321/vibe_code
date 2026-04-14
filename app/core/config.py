@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str | None = None   # set to https://api.groq.com/openai/v1 for Groq
 
     # ── Whisper / STT ─────────────────────────────────────────────────────────
-    WHISPER_BACKEND: Literal["local", "openai"] = "local"
+    WHISPER_BACKEND: Literal["local", "openai"] = "openai"
     WHISPER_MODEL_SIZE: str = "base"
     WHISPER_MODEL: str = "whisper-1"       # model name for OpenAI-compatible API
     WHISPER_LANGUAGE: str | None = "uz"   # None = auto-detect
